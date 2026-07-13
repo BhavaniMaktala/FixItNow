@@ -1,0 +1,2148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment - FixItNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e3c72;
+            --secondary: #ff6b6b;
+            --accent: #4ecdc4;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --dark: #2d3436;
+            --light: #f8f9fa;
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(0);
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar.collapsed .sidebar-logo span,
+        .sidebar.collapsed .menu-item span,
+        .sidebar.collapsed .user-info {
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            justify-content: center;
+            padding: 25px 10px;
+        }
+
+        .sidebar.collapsed .menu-item {
+            padding: 14px 25px;
+            justify-content: center;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+        }
+
+        .sidebar-logo {
+            font-weight: 800;
+            font-size: 24px;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar-logo i {
+            color: var(--secondary);
+            font-size: 26px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+            transition: var(--transition);
+        }
+
+        .menu-item {
+            padding: 14px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #555;
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: rgba(30, 60, 114, 0.05);
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .menu-item i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .menu-item.active i {
+            color: var(--primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            white-space: nowrap;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .user-info h4 {
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: #777;
+        }
+
+        /* User Profile Panel */
+        .user-profile-panel {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            width: 300px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .user-profile-panel.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        .user-profile-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), #2a5298);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .user-profile-info h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .user-profile-info p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .user-profile-menu {
+            padding: 15px 0;
+        }
+
+        .profile-menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #555;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .profile-menu-item:hover {
+            background: rgba(30, 60, 114, 0.05);
+            color: var(--primary);
+        }
+
+        .profile-menu-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .profile-menu-divider {
+            height: 1px;
+            background: #f0f0f0;
+            margin: 10px 0;
+        }
+
+        /* Logout Modal Styles */
+        .logout-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .logout-modal.active {
+            display: flex;
+        }
+
+        .logout-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .logout-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 28px;
+        }
+
+        .logout-content h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .logout-content p {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .logout-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 14px;
+            min-width: 120px;
+        }
+
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-cancel:hover {
+            background: #e9ecef;
+        }
+
+        .btn-confirm {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+        }
+
+        .main-content.expanded {
+            margin-left: 80px;
+        }
+
+        /* Header Styles */
+        .header {
+            height: var(--header-height);
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-left h1 {
+            font-size: 24px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            width: 250px;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+
+        /* Search Results Panel */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            margin-top: 5px;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .search-result-item:hover {
+            background: #f8f9fa;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .search-result-desc {
+            font-size: 12px;
+            color: #777;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            padding: 30px;
+        }
+
+        /* Payment Container */
+        .payment-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 992px) {
+            .payment-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Payment Summary Card */
+        .payment-summary {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .summary-amount {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .summary-details {
+            margin-bottom: 25px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .summary-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .total-label {
+            color: var(--dark);
+        }
+
+        .total-amount {
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        /* Payment Methods Card */
+        .payment-methods {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .methods-header {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .methods-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .methods-subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Payment Method Tabs */
+        .payment-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 20px;
+        }
+
+        .payment-tab {
+            flex: 1;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #666;
+        }
+
+        .payment-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .payment-tab:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        /* Payment Form */
+        .payment-form {
+            display: none;
+        }
+
+        .payment-form.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* UPI Payment Styles */
+        .upi-methods {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .upi-method {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .upi-method:hover {
+            background: #e9ecef;
+        }
+
+        .upi-method.active {
+            border-color: var(--primary);
+            background: rgba(30, 60, 114, 0.05);
+        }
+
+        .upi-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .upi-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Card Payment Styles */
+        .card-preview {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-preview::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+        }
+
+        .card-chip {
+            width: 40px;
+            height: 30px;
+            background: #ffd166;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .card-number {
+            font-size: 18px;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+
+        .card-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .card-holder, .card-expiry {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-label {
+            font-size: 10px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        /* Net Banking Styles */
+        .bank-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .bank-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bank-item:hover {
+            background: #f8f9fa;
+        }
+
+        .bank-item:last-child {
+            border-bottom: none;
+        }
+
+        .bank-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--primary);
+        }
+
+        .bank-name {
+            font-weight: 500;
+        }
+
+        /* Payment Actions */
+        .payment-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-pay {
+            flex: 1;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-pay:hover {
+            background: #152a50;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
+        }
+
+        .btn-cancel {
+            padding: 15px 25px;
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-cancel:hover {
+            background: #e9ecef;
+        }
+
+        /* Security Badge */
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .security-badge i {
+            color: var(--success);
+        }
+
+        /* Payment Processing Modal */
+        .payment-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .payment-modal.active {
+            display: flex;
+        }
+
+        .payment-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            animation: modalAppear 0.3s ease;
+        }
+
+        .payment-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(30, 60, 114, 0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        .payment-success {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 24px;
+        }
+
+        .payment-modal h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .payment-modal p {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        /* QR Code Container */
+        .qr-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .header {
+                padding: 0 20px;
+            }
+            
+            .search-box {
+                display: none;
+            }
+            
+            .payment-container {
+                padding: 0 15px;
+            }
+            
+            .payment-tabs {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .upi-methods {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .payment-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--primary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .menu-toggle:hover {
+            color: var(--secondary);
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Animation for user profile panel */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1001;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .toast-icon.success {
+            background: var(--success);
+        }
+
+        .toast-icon.error {
+            background: var(--secondary);
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .toast-message {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Dark Mode Toggle */
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: #e9ecef;
+        }
+
+        .profile-email {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-icon success">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="toast-content">
+            <div class="toast-title" id="toastTitle">Success</div>
+            <div class="toast-message" id="toastMessage">Action completed successfully</div>
+        </div>
+        <button class="toast-close" id="toastClose" type="button" aria-label="Close notification">
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-logo">
+                <i class="fas fa-tools"></i>
+                <span>FixItNow</span>
+            </a>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="menu-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="book_service.html" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Book Services</span>
+            </a>
+            <a href="service_history.html" class="menu-item">
+                <i class="fas fa-history"></i>
+                <span>Service History</span>
+            </a>
+            <a href="invoice.html" class="menu-item">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>Invoices</span>
+            </a>
+            <a href="review.html" class="menu-item">
+                <i class="fas fa-star"></i>
+                <span>Reviews</span>
+            </a>
+            <a href="profile.html" class="menu-item">
+                <i class="fas fa-user-circle"></i>
+                <span>Profile</span>
+            </a>
+            <a href="subscription.html" class="menu-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Subscription</span>
+            </a>
+            <a href="setting.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="help.html" class="menu-item">
+                <i class="fas fa-question-circle"></i>
+                <span>Help & Support</span>
+            </a>
+        </div>
+        
+        <!-- Enhanced Profile Section -->
+        <div class="sidebar-footer" id="userProfileSection">
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <h4 id="userName">Loading...</h4>
+                    <p id="userType">Member</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced User Profile Panel -->
+    <div class="user-profile-panel" id="userProfilePanel">
+        <div class="user-profile-header">
+            <div class="user-profile-avatar" id="profileAvatar">U</div>
+            <div class="user-profile-info">
+                <h3 id="profileName">Loading...</h3>
+                <p id="profileType">Member</p>
+               <p id="profileEmail" class="profile-email">Loading...</p>
+            </div>
+        </div>
+        <div class="user-profile-menu">
+            <a href="profile.html" class="profile-menu-item">
+                <i class="fas fa-user"></i>
+                My Profile
+            </a>
+            <a href="setting.html" class="profile-menu-item">
+                <i class="fas fa-cog"></i>
+                Account Settings
+            </a>
+            <div class="profile-menu-divider"></div>
+            <a href="#" class="profile-menu-item" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="logout-modal" id="logoutModal">
+        <div class="logout-content">
+            <div class="logout-icon">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <h3>Confirm Logout</h3>
+            <p>Are you sure you want to logout from your account?</p>
+            <div class="logout-actions">
+                <button class="btn btn-cancel" id="cancelLogout">Cancel</button>
+                <button class="btn btn-confirm" id="confirmLogout">Yes, Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Processing Modal -->
+    <div class="payment-modal" id="paymentModal">
+        <div class="payment-modal-content">
+            <div class="payment-spinner" id="paymentSpinner"></div>
+            <div class="payment-success" id="paymentSuccess" style="display: none;">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3 id="paymentModalTitle">Processing Payment</h3>
+            <p id="paymentModalMessage">Please wait while we process your payment. Do not refresh the page.</p>
+            <div id="qrContainer" class="qr-container" style="display: none;">
+                <h4>Scan QR Code to Pay</h4>
+                <div class="qr-code" id="qrCode">
+                    <!-- QR Code would be generated here in a real implementation -->
+                    <span>QR Code Display</span>
+                </div>
+                <p>Open your UPI app and scan this code to complete payment</p>
+            </div>
+            <button class="btn btn-confirm" id="paymentDone" style="display: none;">Payment Done</button>
+            <button class="btn btn-cancel" id="cancelPayment">Cancel Payment</button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Secure Payment</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search services, providers..." id="searchInput">
+                    <div class="search-results" id="searchResults">
+                        <!-- Search results will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <div class="payment-container">
+                <!-- Payment Summary -->
+                <div class="payment-summary">
+                    <div class="summary-header">
+                        <h2 class="summary-title">Payment Summary</h2>
+                        <div class="summary-amount">₹499</div>
+                    </div>
+                    
+                    <div class="summary-details">
+                        <div class="summary-item">
+                            <span class="summary-label">Plan Name</span>
+                            <span class="summary-value">Growth Plan</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Billing Cycle</span>
+                            <span class="summary-value">Monthly</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Plan Features</span>
+                            <span class="summary-value">Unlimited Listings</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Tax (18% GST)</span>
+                            <span class="summary-value">₹89.82</span>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-total">
+                        <span class="total-label">Total Amount</span>
+                        <span class="total-amount">₹588.82</span>
+                    </div>
+                </div>
+                
+                <!-- Payment Methods -->
+                <div class="payment-methods">
+                    <div class="methods-header">
+                        <h2 class="methods-title">Choose Payment Method</h2>
+                        <p class="methods-subtitle">Select your preferred payment method to complete the transaction</p>
+                    </div>
+                    
+                    <!-- Payment Tabs -->
+                    <div class="payment-tabs">
+                        <button class="payment-tab active" data-tab="upi">
+                            <i class="fas fa-mobile-alt"></i>
+                            UPI
+                        </button>
+                        <button class="payment-tab" data-tab="card">
+                            <i class="fas fa-credit-card"></i>
+                            Card
+                        </button>
+                        <button class="payment-tab" data-tab="netbanking">
+                            <i class="fas fa-university"></i>
+                            Net Banking
+                        </button>
+                    </div>
+                    
+                    <!-- UPI Payment Form -->
+                    <div class="payment-form active" id="upiForm">
+                        <div class="upi-methods">
+                            <div class="upi-method active" data-upi="phonepe">
+                                <div class="upi-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="upi-name">PhonePe</div>
+                            </div>
+                            <div class="upi-method" data-upi="gpay">
+                                <div class="upi-icon">
+                                    <i class="fab fa-google"></i>
+                                </div>
+                                <div class="upi-name">Google Pay</div>
+                            </div>
+                            <div class="upi-method" data-upi="paytm">
+                                <div class="upi-icon">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                                <div class="upi-name">Paytm</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="upiId">UPI ID</label>
+                            <input type="text" class="form-input" id="upiId" placeholder="yourname@upi">
+                        </div>
+                        
+                        <div class="payment-actions">
+                            <button class="btn-pay" id="payWithUPI">
+                                <i class="fas fa-lock"></i>
+                                Pay ₹588.82
+                            </button>
+                            <button class="btn-cancel">Cancel</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Payment Form -->
+                    <div class="payment-form" id="cardForm">
+                        <div class="card-preview">
+                            <div class="card-chip"></div>
+                            <div class="card-number">•••• •••• •••• 1234</div>
+                            <div class="card-details">
+                                <div class="card-holder">
+                                    <div class="card-label">CARD HOLDER</div>
+                                    <div>John Doe</div>
+                                </div>
+                                <div class="card-expiry">
+                                    <div class="card-label">EXPIRES</div>
+                                    <div>12/25</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="cardNumber">Card Number</label>
+                            <input type="text" class="form-input" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="cardExpiry">Expiry Date</label>
+                                <input type="text" class="form-input" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="cardCvv">CVV</label>
+                                <input type="text" class="form-input" id="cardCvv" placeholder="123" maxlength="3">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="cardName">Name on Card</label>
+                            <input type="text" class="form-input" id="cardName" placeholder="John Doe">
+                        </div>
+                        
+                        <div class="payment-actions">
+                            <button class="btn-pay" id="payWithCard">
+                                <i class="fas fa-lock"></i>
+                                Pay ₹588.82
+                            </button>
+                            <button class="btn-cancel">Cancel</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Net Banking Form -->
+                    <div class="payment-form" id="netbankingForm">
+                        <div class="form-group">
+                            <label class="form-label">Select Bank</label>
+                            <div class="bank-list">
+                                <div class="bank-item">
+                                    <div class="bank-icon">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div class="bank-name">State Bank of India</div>
+                                </div>
+                                <div class="bank-item">
+                                    <div class="bank-icon">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div class="bank-name">HDFC Bank</div>
+                                </div>
+                                <div class="bank-item">
+                                    <div class="bank-icon">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div class="bank-name">ICICI Bank</div>
+                                </div>
+                                <div class="bank-item">
+                                    <div class="bank-icon">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div class="bank-name">Axis Bank</div>
+                                </div>
+                                <div class="bank-item">
+                                    <div class="bank-icon">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div class="bank-name">Punjab National Bank</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-actions">
+                            <button class="btn-pay" id="payWithNetbanking">
+                                <i class="fas fa-lock"></i>
+                                Pay ₹588.82
+                            </button>
+                            <button class="btn-cancel">Cancel</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Badge -->
+                    <div class="security-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Your payment is secure and encrypted</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Payment Functionality -->
+    <script>
+        // Enhanced User Manager with localStorage persistence
+        const UserManager = {
+            // Check if user is logged in
+            isLoggedIn: function() {
+                return localStorage.getItem('currentUser') !== null;
+            },
+            
+            // Get current user
+            getCurrentUser: function() {
+                const userData = localStorage.getItem('currentUser');
+                return userData ? JSON.parse(userData) : null;
+            },
+            
+            // Save current user
+            saveCurrentUser: function(user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+            },
+            
+            // Get all users (for demo purposes)
+            getAllUsers: function() {
+                const users = localStorage.getItem('allUsers');
+                if (!users) {
+                    // Create demo users if none exist
+                    const demoUsers = [
+                        {
+                            id: 1,
+                            profile: {
+                                fullName: "Bhavani Maktala",
+                                email: "bhavani@example.com",
+                                membership: "Starter Member",
+                                avatar: { initials: "BM" },
+                                stats: {
+                                    servicesBooked: 0,
+                                    completed: 0,
+                                    pending: 0,
+                                    averageRating: 0
+                                }
+                            }
+                        },
+                    ];
+                    localStorage.setItem('allUsers', JSON.stringify(demoUsers));
+                    return demoUsers;
+                }
+                return JSON.parse(users);
+            },
+            
+            // Logout user
+            logout: function() {
+                localStorage.removeItem('currentUser');
+            }
+        };
+
+        // Make UserManager globally available
+        window.userManager = UserManager;
+
+        // Enhanced Payment Functionality
+        class PaymentPage {
+            constructor() {
+                this.currentUser = null;
+                this.isDarkMode = localStorage.getItem('darkMode') === 'true';
+                this.searchResults = [];
+                this.selectedPaymentMethod = 'upi';
+                this.selectedUPI = 'phonepe';
+                this.isProcessing = false;
+                
+                this.init();
+            }
+            
+            init() {
+                // Check if user is logged in
+                if (!window.userManager.isLoggedIn()) {
+                    // Create a default user if none exists
+                    const users = window.userManager.getAllUsers();
+                    window.userManager.saveCurrentUser(users[0]);
+                }
+                
+                // Get current user
+                this.currentUser = window.userManager.getCurrentUser();
+                
+                // Initialize all components
+                this.initializeDashboard();
+                this.initializeSidebar();
+                this.initializeProfilePanel();
+                this.initializeSearch();
+                this.initializeThemeToggle();
+                this.initializeToast();
+                this.initializePaymentTabs();
+                this.initializeUPISelection();
+                this.initializeCardInputs();
+                this.initializePaymentButtons();
+                
+                // Set initial theme
+                this.setTheme(this.isDarkMode);
+            }
+            
+            initializeDashboard() {
+                if (!this.currentUser) return;
+                
+                // Update user information
+                document.getElementById('userAvatar').textContent = this.currentUser.profile.avatar.initials;
+                document.getElementById('userName').textContent = this.currentUser.profile.fullName;
+                document.getElementById('userType').textContent = this.currentUser.profile.membership;
+                
+                document.getElementById('profileAvatar').textContent = this.currentUser.profile.avatar.initials;
+                document.getElementById('profileName').textContent = this.currentUser.profile.fullName;
+                document.getElementById('profileType').textContent = this.currentUser.profile.membership;
+                document.getElementById('profileEmail').textContent = this.currentUser.profile.email;
+            }
+            
+            initializeSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const menuToggle = document.getElementById('menuToggle');
+                
+                // Mobile menu toggle
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && 
+                        !e.target.closest('.sidebar') && 
+                        !e.target.closest('.menu-toggle') && 
+                        sidebar.classList.contains('active')) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+                
+                // Add active class to menu items when clicked
+                const menuItems = document.querySelectorAll('.menu-item');
+                menuItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        // Remove active class from all items
+                        menuItems.forEach(i => i.classList.remove('active'));
+                        // Add active class to clicked item
+                        item.classList.add('active');
+                        
+                        // Close sidebar on mobile after click
+                        if (window.innerWidth <= 768) {
+                            sidebar.classList.remove('active');
+                        }
+                    });
+                });
+            }
+            
+            initializeProfilePanel() {
+                const userProfileSection = document.getElementById('userProfileSection');
+                const userProfilePanel = document.getElementById('userProfilePanel');
+                const logoutBtn = document.getElementById('logoutBtn');
+                const logoutModal = document.getElementById('logoutModal');
+                const cancelLogout = document.getElementById('cancelLogout');
+                const confirmLogout = document.getElementById('confirmLogout');
+                
+                if (userProfileSection && userProfilePanel) {
+                    userProfileSection.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        userProfilePanel.classList.toggle('active');
+                    });
+                    
+                    // Close profile panel when clicking outside
+                    document.addEventListener('click', (e) => {
+                        if (!e.target.closest('.sidebar-footer') && !e.target.closest('.user-profile-panel')) {
+                            userProfilePanel.classList.remove('active');
+                        }
+                    });
+                    
+                    // Open logout confirmation modal
+                    logoutBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        userProfilePanel.classList.remove('active');
+                        logoutModal.classList.add('active');
+                    });
+                    
+                    // Close modal when cancel is clicked
+                    cancelLogout.addEventListener('click', () => {
+                        logoutModal.classList.remove('active');
+                    });
+                    
+                    // Handle logout confirmation
+                    confirmLogout.addEventListener('click', () => {
+                        this.performLogout();
+                    });
+                    
+                    // Close modal when clicking outside
+                    logoutModal.addEventListener('click', (e) => {
+                        if (e.target === logoutModal) {
+                            logoutModal.classList.remove('active');
+                        }
+                    });
+                }
+            }
+            
+            performLogout() {
+                const confirmBtn = document.getElementById('confirmLogout');
+                const originalText = confirmBtn.innerHTML;
+                confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+                confirmBtn.disabled = true;
+                
+                // Simulate API call or logout process
+                setTimeout(() => {
+                    // Clear user data from localStorage
+                    localStorage.removeItem('currentUser');
+                    
+                    // Close modal
+                    document.getElementById('logoutModal').classList.remove('active');
+                    
+                    // Reset button
+                    confirmBtn.innerHTML = originalText;
+                    confirmBtn.disabled = false;
+                    
+                    // Show success message
+                    this.showToast('You have been logged out successfully', 'success');
+                    
+                    // Redirect to login page after a delay
+                    setTimeout(() => {
+                        window.location.href = 'user_login.html';
+                    }, 2000);
+                    
+                }, 1500);
+            }
+            
+            initializeSearch() {
+                const searchInput = document.getElementById('searchInput');
+                const searchResults = document.getElementById('searchResults');
+                
+                // Sample search data
+                const searchData = [
+                    { title: "Plumbing Repair", desc: "Fix leaks, install fixtures, unclog drains" },
+                    { title: "Electrical Wiring", desc: "Install, repair, or upgrade electrical systems" },
+                    { title: "Painting Service", desc: "Interior and exterior painting services" },
+                    { title: "Carpentry Work", desc: "Furniture repair, custom woodwork" },
+                    { title: "John's Plumbing", desc: "Certified plumbing service provider" },
+                    { title: "QuickFix Electricians", desc: "24/7 emergency electrical services" },
+                    { title: "ProPainters", desc: "Professional painting and decorating" },
+                    { title: "Master Carpenters", desc: "Custom furniture and woodwork" }
+                ];
+                
+                searchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase().trim();
+                    
+                    if (query.length === 0) {
+                        searchResults.classList.remove('active');
+                        return;
+                    }
+                    
+                    // Filter search results
+                    this.searchResults = searchData.filter(item => 
+                        item.title.toLowerCase().includes(query) || 
+                        item.desc.toLowerCase().includes(query)
+                    );
+                    
+                    // Update search results UI
+                    this.updateSearchResults();
+                    
+                    // Show search results
+                    searchResults.classList.add('active');
+                });
+                
+                // Close search results when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.search-box')) {
+                        searchResults.classList.remove('active');
+                    }
+                });
+            }
+            
+            updateSearchResults() {
+                const searchResults = document.getElementById('searchResults');
+                searchResults.innerHTML = '';
+                
+                if (this.searchResults.length === 0) {
+                    searchResults.innerHTML = '<div class="search-result-item">No results found</div>';
+                    return;
+                }
+                
+                this.searchResults.forEach(result => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'search-result-item';
+                    resultItem.innerHTML = `
+                        <div class="search-result-title">${result.title}</div>
+                        <div class="search-result-desc">${result.desc}</div>
+                    `;
+                    searchResults.appendChild(resultItem);
+                });
+            }
+            
+            initializeThemeToggle() {
+                const themeToggle = document.getElementById('themeToggle');
+                const themeIcon = themeToggle.querySelector('i');
+                
+                // Set initial icon based on current theme
+                themeIcon.className = this.isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+                
+                themeToggle.addEventListener('click', () => {
+                    this.isDarkMode = !this.isDarkMode;
+                    this.setTheme(this.isDarkMode);
+                    localStorage.setItem('darkMode', this.isDarkMode);
+                    
+                    // Update icon
+                    themeIcon.className = this.isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+                    
+                    this.showToast(`${this.isDarkMode ? 'Dark' : 'Light'} mode activated`, 'success');
+                });
+            }
+            
+            setTheme(isDark) {
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+            
+            initializeToast() {
+                const toast = document.getElementById('toast');
+                const toastClose = document.getElementById('toastClose');
+                
+                toastClose.addEventListener('click', () => {
+                    toast.classList.remove('show');
+                });
+            }
+            
+            showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                const toastTitle = document.getElementById('toastTitle');
+                const toastMessage = document.getElementById('toastMessage');
+                const toastIcon = toast.querySelector('.toast-icon');
+                
+                // Set toast content
+                toastTitle.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+                toastMessage.textContent = message;
+                
+                // Set toast icon based on type
+                toastIcon.className = `toast-icon ${type}`;
+                toastIcon.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>`;
+                
+                // Show toast
+                toast.classList.add('show');
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 5000);
+            }
+            
+            // Payment Tab Functionality
+            initializePaymentTabs() {
+                const paymentTabs = document.querySelectorAll('.payment-tab');
+                const paymentForms = document.querySelectorAll('.payment-form');
+                
+                paymentTabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabName = tab.getAttribute('data-tab');
+                        
+                        // Update active tab
+                        paymentTabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        
+                        // Show corresponding form
+                        paymentForms.forEach(form => {
+                            form.classList.remove('active');
+                            if (form.id === `${tabName}Form`) {
+                                form.classList.add('active');
+                            }
+                        });
+                        
+                        this.selectedPaymentMethod = tabName;
+                    });
+                });
+            }
+            
+            // UPI Selection Functionality
+            initializeUPISelection() {
+                const upiMethods = document.querySelectorAll('.upi-method');
+                
+                upiMethods.forEach(method => {
+                    method.addEventListener('click', () => {
+                        upiMethods.forEach(m => m.classList.remove('active'));
+                        method.classList.add('active');
+                        this.selectedUPI = method.getAttribute('data-upi');
+                    });
+                });
+            }
+            
+            // Card Input Formatting
+            initializeCardInputs() {
+                const cardNumber = document.getElementById('cardNumber');
+                const cardExpiry = document.getElementById('cardExpiry');
+                const cardCvv = document.getElementById('cardCvv');
+                
+                // Format card number with spaces
+                cardNumber.addEventListener('input', (e) => {
+                    let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                    let formattedValue = '';
+                    
+                    for (let i = 0; i < value.length; i++) {
+                        if (i > 0 && i % 4 === 0) {
+                            formattedValue += ' ';
+                        }
+                        formattedValue += value[i];
+                    }
+                    
+                    e.target.value = formattedValue;
+                });
+                
+                // Format expiry date
+                cardExpiry.addEventListener('input', (e) => {
+                    let value = e.target.value.replace(/\D/g, '');
+                    
+                    if (value.length >= 2) {
+                        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                    }
+                    
+                    e.target.value = value;
+                });
+                
+                // Only allow numbers for CVV
+                cardCvv.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/\D/g, '');
+                });
+            }
+            
+            // Payment Button Handlers
+            initializePaymentButtons() {
+                const payWithUPI = document.getElementById('payWithUPI');
+                const payWithCard = document.getElementById('payWithCard');
+                const payWithNetbanking = document.getElementById('payWithNetbanking');
+                const cancelPayment = document.getElementById('cancelPayment');
+                const paymentDone = document.getElementById('paymentDone');
+                
+                // UPI Payment
+                payWithUPI.addEventListener('click', () => {
+                    const upiId = document.getElementById('upiId').value;
+                    
+                    if (!upiId) {
+                        this.showToast('Please enter your UPI ID', 'error');
+                        return;
+                    }
+                    
+                    if (!this.validateUPI(upiId)) {
+                        this.showToast('Please enter a valid UPI ID', 'error');
+                        return;
+                    }
+                    
+                    this.processUPIPayment();
+                });
+                
+                // Card Payment
+                payWithCard.addEventListener('click', () => {
+                    const cardNumber = document.getElementById('cardNumber').value;
+                    const cardExpiry = document.getElementById('cardExpiry').value;
+                    const cardCvv = document.getElementById('cardCvv').value;
+                    const cardName = document.getElementById('cardName').value;
+                    
+                    if (!cardNumber || !cardExpiry || !cardCvv || !cardName) {
+                        this.showToast('Please fill all card details', 'error');
+                        return;
+                    }
+                    
+                    if (!this.validateCardNumber(cardNumber)) {
+                        this.showToast('Please enter a valid card number', 'error');
+                        return;
+                    }
+                    
+                    if (!this.validateExpiry(cardExpiry)) {
+                        this.showToast('Please enter a valid expiry date', 'error');
+                        return;
+                    }
+                    
+                    if (!this.validateCVV(cardCvv)) {
+                        this.showToast('Please enter a valid CVV', 'error');
+                        return;
+                    }
+                    
+                    this.processCardPayment();
+                });
+                
+                // Net Banking Payment
+                payWithNetbanking.addEventListener('click', () => {
+                    this.processNetbankingPayment();
+                });
+                
+                // Cancel Payment
+                cancelPayment.addEventListener('click', () => {
+                    this.cancelPayment();
+                });
+                
+                // Payment Done
+                paymentDone.addEventListener('click', () => {
+                    this.completePayment();
+                });
+            }
+            
+            // Validation Functions
+            validateUPI(upiId) {
+                const upiRegex = /^[a-zA-Z0-9.\-_]{2,49}@[a-zA-Z]{2,}$/;
+                return upiRegex.test(upiId);
+            }
+            
+            validateCardNumber(cardNumber) {
+                // Remove spaces and check if it's a number
+                const cleaned = cardNumber.replace(/\s/g, '');
+                return /^\d{16}$/.test(cleaned);
+            }
+            
+            validateExpiry(expiry) {
+                const expiryRegex = /^(0[1-9]|1[0-2])\/([0-9]{2})$/;
+                if (!expiryRegex.test(expiry)) return false;
+                
+                const [month, year] = expiry.split('/');
+                const currentYear = new Date().getFullYear() % 100;
+                const currentMonth = new Date().getMonth() + 1;
+                
+                if (parseInt(year) < currentYear) return false;
+                if (parseInt(year) === currentYear && parseInt(month) < currentMonth) return false;
+                
+                return true;
+            }
+            
+            validateCVV(cvv) {
+                return /^\d{3,4}$/.test(cvv);
+            }
+            
+            // Payment Processing Functions
+            processUPIPayment() {
+                if (this.isProcessing) return;
+                this.isProcessing = true;
+                
+                const paymentModal = document.getElementById('paymentModal');
+                const paymentSpinner = document.getElementById('paymentSpinner');
+                const qrContainer = document.getElementById('qrContainer');
+                const paymentModalTitle = document.getElementById('paymentModalTitle');
+                const paymentModalMessage = document.getElementById('paymentModalMessage');
+                const paymentDone = document.getElementById('paymentDone');
+                
+                // Show payment modal
+                paymentModal.classList.add('active');
+                paymentSpinner.style.display = 'block';
+                qrContainer.style.display = 'none';
+                paymentDone.style.display = 'none';
+                paymentModalTitle.textContent = 'Processing UPI Payment';
+                paymentModalMessage.textContent = 'Please wait while we process your UPI payment';
+                
+                // Simulate API call
+                setTimeout(() => {
+                    paymentSpinner.style.display = 'none';
+                    qrContainer.style.display = 'block';
+                    paymentModalTitle.textContent = 'Scan QR Code';
+                    paymentModalMessage.textContent = 'Open your UPI app and scan the QR code to complete payment';
+                    paymentDone.style.display = 'block';
+                    
+                    // In a real implementation, we would generate a QR code here
+                    this.isProcessing = false;
+                }, 2000);
+            }
+            
+            processCardPayment() {
+                if (this.isProcessing) return;
+                this.isProcessing = true;
+                
+                const paymentModal = document.getElementById('paymentModal');
+                const paymentSpinner = document.getElementById('paymentSpinner');
+                const paymentModalTitle = document.getElementById('paymentModalTitle');
+                const paymentModalMessage = document.getElementById('paymentModalMessage');
+                
+                // Show payment modal
+                paymentModal.classList.add('active');
+                paymentSpinner.style.display = 'block';
+                paymentModalTitle.textContent = 'Processing Card Payment';
+                paymentModalMessage.textContent = 'Please wait while we process your card payment';
+                
+                // Simulate API call
+                setTimeout(() => {
+                    this.completePayment();
+                }, 3000);
+            }
+            
+            processNetbankingPayment() {
+                if (this.isProcessing) return;
+                this.isProcessing = true;
+                
+                const paymentModal = document.getElementById('paymentModal');
+                const paymentSpinner = document.getElementById('paymentSpinner');
+                const paymentModalTitle = document.getElementById('paymentModalTitle');
+                const paymentModalMessage = document.getElementById('paymentModalMessage');
+                
+                // Show payment modal
+                paymentModal.classList.add('active');
+                paymentSpinner.style.display = 'block';
+                paymentModalTitle.textContent = 'Redirecting to Bank';
+                paymentModalMessage.textContent = 'You will be redirected to your bank\'s secure payment gateway';
+                
+                // Simulate API call
+                setTimeout(() => {
+                    this.completePayment();
+                }, 3000);
+            }
+            
+            completePayment() {
+                const paymentModal = document.getElementById('paymentModal');
+                const paymentSpinner = document.getElementById('paymentSpinner');
+                const paymentSuccess = document.getElementById('paymentSuccess');
+                const paymentModalTitle = document.getElementById('paymentModalTitle');
+                const paymentModalMessage = document.getElementById('paymentModalMessage');
+                const paymentDone = document.getElementById('paymentDone');
+                const qrContainer = document.getElementById('qrContainer');
+                
+                paymentSpinner.style.display = 'none';
+                paymentSuccess.style.display = 'flex';
+                qrContainer.style.display = 'none';
+                paymentDone.style.display = 'none';
+                paymentModalTitle.textContent = 'Payment Successful!';
+                paymentModalMessage.textContent = 'Your payment has been processed successfully. You will be redirected to your dashboard shortly.';
+                
+                // Update user membership
+                if (this.currentUser) {
+                    this.currentUser.profile.membership = "Growth Member";
+                    window.userManager.saveCurrentUser(this.currentUser);
+                }
+                
+                // Show success toast
+                this.showToast('Payment completed successfully! Your plan has been upgraded.', 'success');
+                
+                // Redirect after delay
+                setTimeout(() => {
+                    paymentModal.classList.remove('active');
+                    window.location.href = 'dashboard.html';
+                }, 3000);
+                
+                this.isProcessing = false;
+            }
+            
+            cancelPayment() {
+                const paymentModal = document.getElementById('paymentModal');
+                paymentModal.classList.remove('active');
+                this.isProcessing = false;
+                this.showToast('Payment was cancelled', 'info');
+            }
+        }
+
+        // Initialize the payment page when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new PaymentPage();
+        });
+    </script>
+</body>
+</html>

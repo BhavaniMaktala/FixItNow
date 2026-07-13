@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Plans - FixItNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e3c72;
+            --secondary: #ff6b6b;
+            --accent: #4ecdc4;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --dark: #2d3436;
+            --light: #f8f9fa;
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(0);
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar.collapsed .sidebar-logo span,
+        .sidebar.collapsed .menu-item span,
+        .sidebar.collapsed .user-info {
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            justify-content: center;
+            padding: 25px 10px;
+        }
+
+        .sidebar.collapsed .menu-item {
+            padding: 14px 25px;
+            justify-content: center;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+        }
+
+        .sidebar-logo {
+            font-weight: 800;
+            font-size: 24px;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar-logo i {
+            color: var(--secondary);
+            font-size: 26px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+            transition: var(--transition);
+        }
+
+        .menu-item {
+            padding: 14px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #555;
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: rgba(30, 60, 114, 0.05);
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .menu-item i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .menu-item.active i {
+            color: var(--primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            white-space: nowrap;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .user-info h4 {
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: #777;
+        }
+
+        /* User Profile Panel */
+        .user-profile-panel {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            width: 300px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .user-profile-panel.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        .user-profile-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), #2a5298);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .user-profile-info h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .user-profile-info p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .user-profile-menu {
+            padding: 15px 0;
+        }
+
+        .profile-menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #555;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .profile-menu-item:hover {
+            background: rgba(30, 60, 114, 0.05);
+            color: var(--primary);
+        }
+
+        .profile-menu-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .profile-menu-divider {
+            height: 1px;
+            background: #f0f0f0;
+            margin: 10px 0;
+        }
+
+        /* Logout Modal Styles */
+        .logout-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .logout-modal.active {
+            display: flex;
+        }
+
+        .logout-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .logout-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 28px;
+        }
+
+        .logout-content h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .logout-content p {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .logout-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 14px;
+            min-width: 120px;
+        }
+
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-cancel:hover {
+            background: #e9ecef;
+        }
+
+        .btn-confirm {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+        }
+
+        .main-content.expanded {
+            margin-left: 80px;
+        }
+
+        /* Header Styles */
+        .header {
+            height: var(--header-height);
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-left h1 {
+            font-size: 24px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            width: 250px;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+
+        /* Search Results Panel */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            margin-top: 5px;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .search-result-item:hover {
+            background: #f8f9fa;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .search-result-desc {
+            font-size: 12px;
+            color: #777;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            padding: 30px;
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary), #2a5298);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(30, 60, 114, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+
+        .welcome-text h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-text p {
+            opacity: 0.9;
+            max-width: 500px;
+        }
+
+        .welcome-illustration {
+            font-size: 100px;
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        /* Subscription Plans Section */
+        .subscription-section {
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .view-all {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: var(--transition);
+        }
+
+        .view-all:hover {
+            gap: 8px;
+        }
+
+        /* Plans Container */
+        .plans-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .plan-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .plan-card.popular {
+            border: 2px solid var(--primary);
+            transform: scale(1.02);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 15px;
+            right: -30px;
+            background: var(--primary);
+            color: white;
+            padding: 5px 35px;
+            font-size: 12px;
+            font-weight: 600;
+            transform: rotate(45deg);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .plan-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .plan-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 28px;
+            color: white;
+        }
+
+        .plan-card.free .plan-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .plan-card.professional .plan-icon {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+        }
+
+        .plan-card.business .plan-icon {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .plan-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .plan-card.free .plan-name {
+            color: #667eea;
+        }
+
+        .plan-card.professional .plan-name {
+            color: #ff6b6b;
+        }
+
+        .plan-card.business .plan-name {
+            color: #2ecc71;
+        }
+
+        .plan-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .plan-price {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .price-amount {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .plan-card.free .price-amount {
+            color: #667eea;
+        }
+
+        .plan-card.professional .price-amount {
+            color: #ff6b6b;
+        }
+
+        .plan-card.business .price-amount {
+            color: #2ecc71;
+        }
+
+        .price-period {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 30px;
+            flex-grow: 1;
+        }
+
+        .plan-features li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .plan-features i {
+            font-size: 14px;
+            width: 18px;
+        }
+
+        .plan-card.free .plan-features i {
+            color: #667eea;
+        }
+
+        .plan-card.professional .plan-features i {
+            color: #ff6b6b;
+        }
+
+        .plan-card.business .plan-features i {
+            color: #2ecc71;
+        }
+
+        .plan-btn {
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 15px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .plan-card.free .plan-btn {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .plan-card.free .plan-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .plan-card.professional .plan-btn {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+        }
+
+        .plan-card.professional .plan-btn:hover {
+            background: #ff6b6b;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .plan-card.business .plan-btn {
+            background: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+        }
+
+        .plan-card.business .plan-btn:hover {
+            background: #2ecc71;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        /* Plan Comparison */
+        .comparison-section {
+            margin-bottom: 30px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .feature-name {
+            font-weight: 500;
+        }
+
+        .feature-value {
+            text-align: center;
+        }
+
+        .check {
+            color: var(--success);
+            font-size: 18px;
+        }
+
+        .cross {
+            color: #ddd;
+            font-size: 18px;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            margin-bottom: 30px;
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+        }
+
+        .faq-question {
+            padding: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .faq-question:hover {
+            background: #f8f9fa;
+        }
+
+        .faq-answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-answer.active {
+            padding: 0 20px 20px;
+            max-height: 500px;
+        }
+
+        .faq-toggle {
+            transition: var(--transition);
+        }
+
+        .faq-toggle.rotate {
+            transform: rotate(180deg);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .plans-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .plan-card.popular {
+                transform: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .header {
+                padding: 0 20px;
+            }
+            
+            .search-box {
+                display: none;
+            }
+            
+            .welcome-banner {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .welcome-illustration {
+                font-size: 70px;
+            }
+            
+            .user-profile-panel {
+                width: 280px;
+                left: 10px;
+            }
+            
+            .logout-actions {
+                flex-direction: column;
+            }
+            
+            .logout-actions .btn {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .dashboard-content {
+                padding: 20px 15px;
+            }
+            
+            .user-profile-panel {
+                width: 260px;
+                left: 10px;
+            }
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--primary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .menu-toggle:hover {
+            color: var(--secondary);
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Animation for user profile panel */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1001;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .toast-icon.success {
+            background: var(--success);
+        }
+
+        .toast-icon.error {
+            background: var(--secondary);
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .toast-message {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Dark Mode Toggle */
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: #e9ecef;
+        }
+
+        .profile-email {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-icon success">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="toast-content">
+            <div class="toast-title" id="toastTitle">Success</div>
+            <div class="toast-message" id="toastMessage">Action completed successfully</div>
+        </div>
+        <button class="toast-close" id="toastClose" type="button" aria-label="Close notification">
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-logo">
+                <i class="fas fa-tools"></i>
+                <span>FixItNow</span>
+            </a>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="menu-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="book_service.html" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Book Services</span>
+            </a>
+            <a href="service_history.html" class="menu-item">
+                <i class="fas fa-history"></i>
+                <span>Service History</span>
+            </a>
+            <a href="invoice.html" class="menu-item">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>Invoices</span>
+            </a>
+            <a href="review.html" class="menu-item">
+                <i class="fas fa-star"></i>
+                <span>Reviews</span>
+            </a>
+            <a href="profile.html" class="menu-item">
+                <i class="fas fa-user-circle"></i>
+                <span>Profile</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Subscription</span>
+            </a>
+            <a href="setting.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="help.html" class="menu-item">
+                <i class="fas fa-question-circle"></i>
+                <span>Help & Support</span>
+            </a>
+        </div>
+        
+        <!-- Enhanced Profile Section -->
+        <div class="sidebar-footer" id="userProfileSection">
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info">
+                    <h4 id="userName">Loading...</h4>
+                    <p id="userType">Member</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced User Profile Panel -->
+    <div class="user-profile-panel" id="userProfilePanel">
+        <div class="user-profile-header">
+            <div class="user-profile-avatar" id="profileAvatar">U</div>
+            <div class="user-profile-info">
+                <h3 id="profileName">Loading...</h3>
+                <p id="profileType">Member</p>
+               <p id="profileEmail" class="profile-email">Loading...</p>
+            </div>
+        </div>
+        <div class="user-profile-menu">
+            <a href="profile.html" class="profile-menu-item">
+                <i class="fas fa-user"></i>
+                My Profile
+            </a>
+            <a href="setting.html" class="profile-menu-item">
+                <i class="fas fa-cog"></i>
+                Account Settings
+            </a>
+            <div class="profile-menu-divider"></div>
+            <a href="#" class="profile-menu-item" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="logout-modal" id="logoutModal">
+        <div class="logout-content">
+            <div class="logout-icon">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <h3>Confirm Logout</h3>
+            <p>Are you sure you want to logout from your account?</p>
+            <div class="logout-actions">
+                <button class="btn btn-cancel" id="cancelLogout">Cancel</button>
+                <button class="btn btn-confirm" id="confirmLogout">Yes, Logout</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Subscription Plans</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search services, providers..." id="searchInput">
+                    <div class="search-results" id="searchResults">
+                        <!-- Search results will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="welcome-text">
+                    <h2 id="welcomeMessage">Upgrade Your Experience! 🚀</h2>
+                    <p>Choose the perfect plan to unlock premium features and grow your service business with FixItNow.</p>
+                </div>
+                <div class="welcome-illustration">
+                    <i class="fas fa-rocket"></i>
+                </div>
+            </div>
+            
+            <!-- Subscription Plans -->
+            <div class="subscription-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Choose Your Plan</h3>
+                    </div>
+                    
+                    <div class="plans-container">
+                        <!-- Free Plan -->
+                        <div class="plan-card free">
+                            <div class="plan-header">
+                                <div class="plan-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <h3 class="plan-name">Starter</h3>
+                                <p class="plan-description">Perfect for new service providers</p>
+                            </div>
+                            
+                            <div class="plan-price">
+                                <div class="price-amount">₹0</div>
+                                <div class="price-period">forever</div>
+                            </div>
+                            
+                            <ul class="plan-features">
+                                <li><i class="fas fa-check"></i> Basic profile creation</li>
+                                <li><i class="fas fa-check"></i> Up to 5 service listings</li>
+                                <li><i class="fas fa-check"></i> Receive booking requests</li>
+                                <li><i class="fas fa-check"></i> Customer reviews & ratings</li>
+                                <li><i class="fas fa-check"></i> Standard customer support</li>
+                                <li><i class="fas fa-times"></i> Priority in search results</li>
+                                <li><i class="fas fa-times"></i> Advanced analytics</li>
+                                <li><i class="fas fa-times"></i> Promoted listings</li>
+                            </ul>
+                            
+                            <button class="plan-btn" onclick="selectPlan('free')">
+                                <i class="fas fa-check-circle"></i>
+                                Current Plan
+                            </button>
+                        </div>
+                        
+                        <!-- Professional Plan -->
+                        <div class="plan-card professional popular">
+                            <div class="popular-badge">Most Popular</div>
+                            <div class="plan-header">
+                                <div class="plan-icon">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <h3 class="plan-name">Growth</h3>
+                                <p class="plan-description">Ideal for growing your business</p>
+                            </div>
+                            
+                            <div class="plan-price">
+                                <div class="price-amount">₹499</div>
+                                <div class="price-period">per month</div>
+                            </div>
+                            
+                            <ul class="plan-features">
+                                <li><i class="fas fa-check"></i> Everything in Starter</li>
+                                <li><i class="fas fa-check"></i> Unlimited service listings</li>
+                                <li><i class="fas fa-check"></i> Priority in search results</li>
+                                <li><i class="fas fa-check"></i> Advanced profile customization</li>
+                                <li><i class="fas fa-check"></i> Booking calendar integration</li>
+                                <li><i class="fas fa-check"></i> Basic business analytics</li>
+                                <li><i class="fas fa-check"></i> Promoted listings</li>
+                                <li><i class="fas fa-times"></i> Dedicated account manager</li>
+                            </ul>
+                            
+                            <button class="plan-btn" onclick="selectPlan('professional')">
+                                <i class="fas fa-arrow-up"></i>
+                                Upgrade Now
+                            </button>
+                        </div>
+                        
+                        <!-- Business Plan -->
+                        <div class="plan-card business">
+                            <div class="plan-header">
+                                <div class="plan-icon">
+                                    <i class="fas fa-building"></i>
+                                </div>
+                                <h3 class="plan-name">Enterprise</h3>
+                                <p class="plan-description">For established service businesses</p>
+                            </div>
+                            
+                            <div class="plan-price">
+                                <div class="price-amount">₹1299</div>
+                                <div class="price-period">per month</div>
+                            </div>
+                            
+                            <ul class="plan-features">
+                                <li><i class="fas fa-check"></i> Everything in Growth</li>
+                                <li><i class="fas fa-check"></i> Team management (up to 5 users)</li>
+                                <li><i class="fas fa-check"></i> Top priority in search results</li>
+                                <li><i class="fas fa-check"></i> Advanced business analytics</li>
+                                <li><i class="fas fa-check"></i> Dedicated account manager</li>
+                                <li><i class="fas fa-check"></i> Custom branding options</li>
+                                <li><i class="fas fa-check"></i> API access</li>
+                                <li><i class="fas fa-check"></i> Premium 24/7 support</li>
+                            </ul>
+                            
+                            <button class="plan-btn" onclick="selectPlan('business')">
+                                <i class="fas fa-crown"></i>
+                                Go Premium
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Plan Comparison -->
+            <div class="comparison-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Plan Comparison</h3>
+                    </div>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Features</th>
+                                <th>Starter</th>
+                                <th>Growth</th>
+                                <th>Enterprise</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="feature-name">Service Listings</td>
+                                <td class="feature-value">5</td>
+                                <td class="feature-value">Unlimited</td>
+                                <td class="feature-value">Unlimited</td>
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Search Priority</td>
+                                <td class="feature-value"><i class="fas fa-times cross"></i></td>
+                                <td class="feature-value"><i class="fas fa-check check"></i></td>
+                                <td class="feature-value"><i class="fas fa-check check"></i></td>
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Business Analytics</td>
+                                <td class="feature-value"><i class="fas fa-times cross"></i></td>
+                                <td class="feature-value">Basic</td>
+                                <td class="feature-value">Advanced</td>
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Team Members</td>
+                                <td class="feature-value">1</td>
+                                <td class="feature-value">1</td>
+                                <td class="feature-value">Up to 5</td>
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Customer Support</td>
+                                <td class="feature-value">Standard</td>
+                                <td class="feature-value">Priority</td>
+                                <td class="feature-value">24/7 Premium</td>
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Custom Branding</td>
+                                <td class="feature-value"><i class="fas fa-times cross"></i></td>
+                                <td class="feature-value"><i class="fas fa-times cross"></i></td>
+                                <td class="feature-value"><i class="fas fa-check check"></i></td>
+                            </tr>
+                            <tr>
+                                <td class="feature-name">API Access</td>
+                                <td class="feature-value"><i class="fas fa-times cross"></i></td>
+                                <td class="feature-value"><i class="fas fa-times cross"></i></td>
+                                <td class="feature-value"><i class="fas fa-check check"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- FAQ Section -->
+            <div class="faq-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Frequently Asked Questions</h3>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Can I change my plan later?
+                            <i class="fas fa-chevron-down faq-toggle"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Yes, you can upgrade or downgrade your plan at any time. When upgrading, you'll get immediate access to the new features. When downgrading, the changes will take effect at the start of your next billing cycle.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Is there a contract or long-term commitment?
+                            <i class="fas fa-chevron-down faq-toggle"></i>
+                        </div>
+                        <div class="faq-answer">
+                            No, all our plans are month-to-month with no long-term contracts. You can cancel your subscription at any time without any cancellation fees.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            What payment methods do you accept?
+                            <i class="fas fa-chevron-down faq-toggle"></i>
+                        </div>
+                        <div class="faq-answer">
+                            We accept all major credit cards (Visa, MasterCard, American Express), debit cards, UPI payments, and net banking. All payments are processed securely through our payment partners.
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Do you offer discounts for annual payments?
+                            <i class="fas fa-chevron-down faq-toggle"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Yes! We offer a 15% discount when you pay annually for the Growth plan and a 20% discount for the Enterprise plan. Contact our sales team for custom enterprise pricing for larger teams.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for enhanced functionality -->
+    <script>
+        // Enhanced User Manager with localStorage persistence
+        const UserManager = {
+            // Check if user is logged in
+            isLoggedIn: function() {
+                return localStorage.getItem('currentUser') !== null;
+            },
+            
+            // Get current user
+            getCurrentUser: function() {
+                const userData = localStorage.getItem('currentUser');
+                return userData ? JSON.parse(userData) : null;
+            },
+            
+            // Save current user
+            saveCurrentUser: function(user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+            },
+            
+            // Get all users (for demo purposes)
+            getAllUsers: function() {
+                const users = localStorage.getItem('allUsers');
+                if (!users) {
+                    // Create demo users if none exist
+                    const demoUsers = [
+                        {
+                            id: 1,
+                            profile: {
+                                fullName: "Bhavani Maktala",
+                                email: "bhavani@example.com",
+                                membership: "Starter Member",
+                                avatar: { initials: "BM" },
+                                stats: {
+                                    servicesBooked: 0,
+                                    completed: 0,
+                                    pending: 0,
+                                    averageRating: 0
+                                }
+                            }
+                        },
+                    ];
+                    localStorage.setItem('allUsers', JSON.stringify(demoUsers));
+                    return demoUsers;
+                }
+                return JSON.parse(users);
+            },
+            
+            // Logout user
+            logout: function() {
+                localStorage.removeItem('currentUser');
+            }
+        };
+
+        // Make UserManager globally available
+        window.userManager = UserManager;
+
+        // Enhanced Dashboard Functionality
+        class Dashboard {
+            constructor() {
+                this.currentUser = null;
+                this.isDarkMode = localStorage.getItem('darkMode') === 'true';
+                this.searchResults = [];
+                
+                this.init();
+            }
+            
+            init() {
+                // Check if user is logged in
+                if (!window.userManager.isLoggedIn()) {
+                    // Create a default user if none exists
+                    const users = window.userManager.getAllUsers();
+                    window.userManager.saveCurrentUser(users[0]);
+                }
+                
+                // Get current user
+                this.currentUser = window.userManager.getCurrentUser();
+                
+                // Initialize all components
+                this.initializeDashboard();
+                this.initializeSidebar();
+                this.initializeProfilePanel();
+                this.initializeSearch();
+                this.initializeThemeToggle();
+                this.initializeToast();
+                
+                // Set initial theme
+                this.setTheme(this.isDarkMode);
+            }
+            
+            initializeDashboard() {
+                if (!this.currentUser) return;
+                
+                // Update user information
+                document.getElementById('userAvatar').textContent = this.currentUser.profile.avatar.initials;
+                document.getElementById('userName').textContent = this.currentUser.profile.fullName;
+                document.getElementById('userType').textContent = this.currentUser.profile.membership;
+                
+                document.getElementById('profileAvatar').textContent = this.currentUser.profile.avatar.initials;
+                document.getElementById('profileName').textContent = this.currentUser.profile.fullName;
+                document.getElementById('profileType').textContent = this.currentUser.profile.membership;
+                document.getElementById('profileEmail').textContent = this.currentUser.profile.email;
+                
+                // Update welcome message
+                const firstName = this.currentUser.profile.fullName.split(' ')[0];
+                document.getElementById('welcomeMessage').textContent = `Upgrade Your Experience, ${firstName}! 🚀`;
+            }
+            
+            initializeSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const menuToggle = document.getElementById('menuToggle');
+                
+                // Mobile menu toggle
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && 
+                        !e.target.closest('.sidebar') && 
+                        !e.target.closest('.menu-toggle') && 
+                        sidebar.classList.contains('active')) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+                
+                // Add active class to menu items when clicked
+                const menuItems = document.querySelectorAll('.menu-item');
+                menuItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        // Remove active class from all items
+                        menuItems.forEach(i => i.classList.remove('active'));
+                        // Add active class to clicked item
+                        item.classList.add('active');
+                        
+                        // Close sidebar on mobile after click
+                        if (window.innerWidth <= 768) {
+                            sidebar.classList.remove('active');
+                        }
+                    });
+                });
+            }
+            
+            initializeProfilePanel() {
+                const userProfileSection = document.getElementById('userProfileSection');
+                const userProfilePanel = document.getElementById('userProfilePanel');
+                const logoutBtn = document.getElementById('logoutBtn');
+                const logoutModal = document.getElementById('logoutModal');
+                const cancelLogout = document.getElementById('cancelLogout');
+                const confirmLogout = document.getElementById('confirmLogout');
+                
+                if (userProfileSection && userProfilePanel) {
+                    userProfileSection.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        userProfilePanel.classList.toggle('active');
+                    });
+                    
+                    // Close profile panel when clicking outside
+                    document.addEventListener('click', (e) => {
+                        if (!e.target.closest('.sidebar-footer') && !e.target.closest('.user-profile-panel')) {
+                            userProfilePanel.classList.remove('active');
+                        }
+                    });
+                    
+                    // Open logout confirmation modal
+                    logoutBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        userProfilePanel.classList.remove('active');
+                        logoutModal.classList.add('active');
+                    });
+                    
+                    // Close modal when cancel is clicked
+                    cancelLogout.addEventListener('click', () => {
+                        logoutModal.classList.remove('active');
+                    });
+                    
+                    // Handle logout confirmation
+                    confirmLogout.addEventListener('click', () => {
+                        this.performLogout();
+                    });
+                    
+                    // Close modal when clicking outside
+                    logoutModal.addEventListener('click', (e) => {
+                        if (e.target === logoutModal) {
+                            logoutModal.classList.remove('active');
+                        }
+                    });
+                }
+            }
+            
+            performLogout() {
+                const confirmBtn = document.getElementById('confirmLogout');
+                const originalText = confirmBtn.innerHTML;
+                confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+                confirmBtn.disabled = true;
+                
+                // Simulate API call or logout process
+                setTimeout(() => {
+                    // Clear user data from localStorage
+                    localStorage.removeItem('currentUser');
+                    
+                    // Close modal
+                    document.getElementById('logoutModal').classList.remove('active');
+                    
+                    // Reset button
+                    confirmBtn.innerHTML = originalText;
+                    confirmBtn.disabled = false;
+                    
+                    // Show success message
+                    this.showToast('You have been logged out successfully', 'success');
+                    
+                    // Redirect to login page after a delay
+                    setTimeout(() => {
+                        window.location.href = 'user_login.html';
+                    }, 2000);
+                    
+                }, 1500);
+            }
+            
+            initializeSearch() {
+                const searchInput = document.getElementById('searchInput');
+                const searchResults = document.getElementById('searchResults');
+                
+                // Sample search data
+                const searchData = [
+                    { title: "Plumbing Repair", desc: "Fix leaks, install fixtures, unclog drains" },
+                    { title: "Electrical Wiring", desc: "Install, repair, or upgrade electrical systems" },
+                    { title: "Painting Service", desc: "Interior and exterior painting services" },
+                    { title: "Carpentry Work", desc: "Furniture repair, custom woodwork" },
+                    { title: "John's Plumbing", desc: "Certified plumbing service provider" },
+                    { title: "QuickFix Electricians", desc: "24/7 emergency electrical services" },
+                    { title: "ProPainters", desc: "Professional painting and decorating" },
+                    { title: "Master Carpenters", desc: "Custom furniture and woodwork" }
+                ];
+                
+                searchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase().trim();
+                    
+                    if (query.length === 0) {
+                        searchResults.classList.remove('active');
+                        return;
+                    }
+                    
+                    // Filter search results
+                    this.searchResults = searchData.filter(item => 
+                        item.title.toLowerCase().includes(query) || 
+                        item.desc.toLowerCase().includes(query)
+                    );
+                    
+                    // Update search results UI
+                    this.updateSearchResults();
+                    
+                    // Show search results
+                    searchResults.classList.add('active');
+                });
+                
+                // Close search results when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.search-box')) {
+                        searchResults.classList.remove('active');
+                    }
+                });
+            }
+            
+            updateSearchResults() {
+                const searchResults = document.getElementById('searchResults');
+                searchResults.innerHTML = '';
+                
+                if (this.searchResults.length === 0) {
+                    searchResults.innerHTML = '<div class="search-result-item">No results found</div>';
+                    return;
+                }
+                
+                this.searchResults.forEach(result => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'search-result-item';
+                    resultItem.innerHTML = `
+                        <div class="search-result-title">${result.title}</div>
+                        <div class="search-result-desc">${result.desc}</div>
+                    `;
+                    searchResults.appendChild(resultItem);
+                });
+            }
+            
+            initializeThemeToggle() {
+                const themeToggle = document.getElementById('themeToggle');
+                const themeIcon = themeToggle.querySelector('i');
+                
+                // Set initial icon based on current theme
+                themeIcon.className = this.isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+                
+                themeToggle.addEventListener('click', () => {
+                    this.isDarkMode = !this.isDarkMode;
+                    this.setTheme(this.isDarkMode);
+                    localStorage.setItem('darkMode', this.isDarkMode);
+                    
+                    // Update icon
+                    themeIcon.className = this.isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+                    
+                    this.showToast(`${this.isDarkMode ? 'Dark' : 'Light'} mode activated`, 'success');
+                });
+            }
+            
+            setTheme(isDark) {
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+            
+            initializeToast() {
+                const toast = document.getElementById('toast');
+                const toastClose = document.getElementById('toastClose');
+                
+                toastClose.addEventListener('click', () => {
+                    toast.classList.remove('show');
+                });
+            }
+            
+            showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                const toastTitle = document.getElementById('toastTitle');
+                const toastMessage = document.getElementById('toastMessage');
+                const toastIcon = toast.querySelector('.toast-icon');
+                
+                // Set toast content
+                toastTitle.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+                toastMessage.textContent = message;
+                
+                // Set toast icon based on type
+                toastIcon.className = `toast-icon ${type}`;
+                toastIcon.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>`;
+                
+                // Show toast
+                toast.classList.add('show');
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 5000);
+            }
+        }
+
+        // Initialize the dashboard when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new Dashboard();
+        });
+
+        // Plan selection function
+        function selectPlan(plan) {
+            const planNames = {
+                'free': 'Starter',
+                'professional': 'Growth',
+                'business': 'Enterprise'
+            };
+            
+            const planName = planNames[plan];
+            const button = document.querySelector(`.plan-card.${plan} .plan-btn`);
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            button.disabled = true;
+
+            // Simulate API call
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                
+                if (plan === 'free') {
+                    showToast('You are already on the Starter plan', 'info');
+                } else {
+                    showToast(`Redirecting to ${planName} plan payment...`, 'success');
+                    // In a real app, this would redirect to the payment page
+                    setTimeout(() => {
+                        // window.location.href = `payment.html?plan=${plan}`;
+                    }, 1500);
+                }
+            }, 1500);
+        }
+
+        // FAQ toggle function
+        function toggleFAQ(element) {
+            const answer = element.nextElementSibling;
+            const toggle = element.querySelector('.faq-toggle');
+            
+            // Close all other FAQs
+            document.querySelectorAll('.faq-answer').forEach(item => {
+                if (item !== answer) {
+                    item.classList.remove('active');
+                }
+            });
+            
+            document.querySelectorAll('.faq-toggle').forEach(item => {
+                if (item !== toggle) {
+                    item.classList.remove('rotate');
+                }
+            });
+            
+            // Toggle current FAQ
+            answer.classList.toggle('active');
+            toggle.classList.toggle('rotate');
+        }
+
+        // Toast function
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = toast.querySelector('.toast-icon');
+            
+            // Set toast content
+            toastTitle.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+            toastMessage.textContent = message;
+            
+            // Set toast icon based on type
+            toastIcon.className = `toast-icon ${type}`;
+            toastIcon.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>`;
+            
+            // Show toast
+            toast.classList.add('show');
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
